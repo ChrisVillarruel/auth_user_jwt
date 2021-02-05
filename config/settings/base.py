@@ -106,3 +106,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Definimos el modelo User personalizado que creamos.
+# `users.User` le dice a Django que nos referimos al modelo `User` en
+# el módulo de users. Este módulo está registrado arriba en una configuración
+# llamado `LOCAL_APPS`.
+AUTH_USER_MODEL = 'users.User'
