@@ -132,7 +132,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             'id': self.user_id,
             'email': self.email,
             'username': self.username,
-            'exp': int(dt.strftime('%s'))
+            'exp': dt.strftime("%m/%d/%Y %T:%M%p")
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token.decode('utf-8')
