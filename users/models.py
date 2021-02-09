@@ -3,6 +3,7 @@
 import jwt
 from django.db import models
 from datetime import datetime, timedelta
+import datetime
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -123,16 +124,45 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def _generate_jwt_token(self):
         """
-        Generates a JSON Web Token that stores this user's ID and has an expiry
-        date set to 60 days into the future.
+        Genera un token web JSON que almacena el ID de este usuario y tiene
+        una caducidad fecha establecida en 60 días en el futuro.
         """
-        dt = datetime.now() + timedelta(days=60)
+        return {
+            'access_token': self.generate_jwt_access_token(),
+            'refresh_token': self.generate_jwt_refresh_token()
+        }
 
-        token = jwt.encode({
+    def generate_jwt_access_token(self):
+        """
+        Generar un token de acceso JWT que almacena información del usuario que se registro y tiene
+        un tiempo de vida muy reducida. Este tipo de token es utilizado para la activación
+        de una cuenta. Su tiempo de vida va entre los cinco minutos y media hora.
+        """
+
+        access_token = jwt.encode({
             'id': self.user_id,
             'email': self.email,
             'username': self.username,
-            'exp': dt.strftime("%m/%d/%Y %T:%M%p")
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=5),
+            'iat': datetime.datetime.utcnow(),
         }, settings.SECRET_KEY, algorithm='HS256')
 
-        return token.decode('utf-8')
+        return access_token.decode('utf-8')
+
+    def generate_jwt_refresh_token(self):
+        """
+        Generar un refresh_token de JWT que almacena información del usuario que se registro y tiene
+        un tiempo vida mas alrgo. Este tipo de token es utilizado para la navegación dentro del sistema
+        sin la necesidad de iniciar sesión cada media hora. Este tipo de token puede durar el tiempo
+        que el desarrollador decida. En este caso duarara 60 dias.
+        """
+
+        refresh_token = jwt.encode({
+            'id': self.user_id,
+            'email': self.email,
+            'username': self.username,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),
+            'iat': datetime.datetime.utcnow()
+        }, settings.SECRET_KEY, algorithm='HS256')
+
+        return refresh_token.decode('utf-8')
