@@ -1,6 +1,7 @@
 # users.serializers
 from rest_framework import serializers
 from django.contrib.auth import authenticate
+from rest_framework import exceptions
 
 from .models import User
 
@@ -82,15 +83,15 @@ class LoginSerializer(serializers.Serializer):
         # Si no se encontró ningún usuario que coincida con esta combinación de correo electrónico / contraseña,
         # `authenticate` devolverá` None`. Plantee una excepción en este caso.
         if user is None:
-            raise serializers.ValidationError(
-                'No se encontró un usuario con este correo electrónico y contraseña.')
+            raise exceptions.AuthenticationFailed(
+                'Dirección de correo electronico y/o contraseña incorrecta')
 
         # Django proporciona una bandera en nuestro modelo `Usuario` llamada` is_active`. los
         # El propósito de esta bandera es decirnos si el usuario ha sido baneado.
         # o desactivado. Este casi nunca será el caso, pero
         # vale la pena comprobarlo. Plantee una excepción en este caso.
         if not user.is_active:
-            raise serializers.ValidationError(
+            raise exceptions.AuthenticationFailed(
                 'Este usuario ha sido desactivado.')
 
         # El método `validate` debería devolver un diccionario de datos validados.
@@ -100,3 +101,52 @@ class LoginSerializer(serializers.Serializer):
             'username': user.username,
             'token': user.token
         }
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Handles serialization and deserialization of User objects."""
+
+    # Las contraseñas deben tener al menos 8 caracteres, pero no más de 128
+    # caracteres. Estos valores son los predeterminados proporcionados por Django. Podríamos
+    # cambiarlos, pero eso crearía un trabajo extra sin introducir ningún
+    # beneficio, así que sigamos con los valores predeterminados.
+    password = serializers.CharField(max_length=128, min_length=8, write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('email', 'username', 'password', 'token',)
+
+        # La opción `read_only_fields` es una alternativa para explícitamente
+        # especificando el campo con `read_only = True` como hicimos para la contraseña
+        # encima. La razón por la que queremos usar `read_only_fields` aquí es que
+        # no necesitamos especificar nada más sobre el campo.
+        # El campo de contraseña necesitaba el `min_length` y propiedades de `max_length`,
+        # pero ese no es el caso del token campo.
+        read_only_fields = ('token',)
+
+    def update(self, instance, validated_data):
+        """Realiza una actualización en un usuario."""
+
+        # Las contraseñas no deben manejarse con `setattr`, a diferencia de otros campos.
+        # Django proporciona una función que maneja hash y
+        # Salar contraseñas. Eso significa
+        # necesitamos eliminar el campo de contraseña de la
+        # Diccionario `validated_data` antes de iterar sobre él.
+        password = validated_data.pop('password', None)
+
+        for (key, value) in validated_data.items():
+            # Para las claves restantes en `validated_data`, las configuraremos en
+            # la instancia actual de "Usuario" una a la vez.
+            setattr(instance, key, value)
+
+        if password is not None:
+            # `.set_password ()` maneja todo
+            # de las cosas de seguridad que no deberían preocuparnos.
+            instance.set_password(password)
+
+        # Una vez actualizado todo, debemos guardar explícitamente
+        # el modelo. Vale la pena señalar que `.set_password ()` no
+        # guarda el modelo.
+        instance.save()
+
+        return instance
