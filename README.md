@@ -36,7 +36,7 @@ El usuario se dirigira a la ruta login.
 
 Se ingresara las credenciales correpondientes y la API realizara exacatemente lo mismo, se dirigira al controlador y el controlador le enviara al serializador 
 su dirección de correo electroninco y contraseña. El serializador se encaragara de validar que el usuario exista y que se cuenta este actiavada. 
-Si todo fue correcto la api retornara su email, nombre de usuario y los tokens de acceso y de actualización del sistema.
+Si todo fue correcto la API retornara su email, nombre de usuario, los tokens de acceso y de actualización del sistema.
 
 ![This is a alt text.](/capturas/jsonLogin.png "This is a sample image.")
 
@@ -44,7 +44,7 @@ Si todo fue correcto la api retornara su email, nombre de usuario y los tokens d
 
 #### Verificamos que el usuario actual este logeado.
 
-Para verificar que el usuario actual este logeado, nos dirigiremos a la ruta \user. Esta ruta de retornara un JSON con todos los datos del usuario, email, nombre de usuario
+Para verificar que el usuario actual este logeado, nos dirigiremos a la ruta \user. Esta ruta retornara un JSON con todos los datos del usuario, email, nombre de usuario
 y credenciales de acceso (Tokens).
 
 ![This is a alt text.](/capturas/detallaUsuario.png "This is a sample image.")
