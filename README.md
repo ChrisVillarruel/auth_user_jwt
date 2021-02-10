@@ -36,7 +36,7 @@ El usuario se dirigira a la ruta login.
 
 Se ingresara las credenciales correpondientes y la API realizara exacatemente lo mismo, se dirigira al controlador y el controlador le enviara al serializador 
 su dirección de correo electroninco y contraseña. El serializador se encaragara de validar que el usuario exista y que se cuenta este actiavada. 
-Si todo fue correcto la api retornara su email, nombre de usuario y los tokens de acceso y de actualización del sistema.
+Si todo fue correcto la API retornara su email, nombre de usuario, los tokens de acceso y de actualización del sistema.
 
 ![This is a alt text.](/capturas/jsonLogin.png "This is a sample image.")
 
@@ -44,8 +44,8 @@ Si todo fue correcto la api retornara su email, nombre de usuario y los tokens d
 
 #### Verificamos que el usuario actual este logeado.
 
-Para verificar que el usuario actual este logeado, nos dirigiremos a la ruta user. Esta ruta de retornara un JSON con todos mis datos, email, nombre de usuario
-y credenciales de acceso (Tokens)
+Para verificar que el usuario actual este logeado, nos dirigiremos a la ruta \user. Esta ruta retornara un JSON con todos los datos del usuario, email, nombre de usuario
+y credenciales de acceso (Tokens).
 
 ![This is a alt text.](/capturas/detallaUsuario.png "This is a sample image.")
 
@@ -58,6 +58,23 @@ Para que el usuario actual pueda ver sus datos el frontent se encargara de envia
 ![This is a alt text.](/capturas/authorizationBearer.png "This is a sample image.")
 
 ![This is a alt text.](/capturas/authorizationExitosa.png "This is a sample image.")
+
+#### Permisos de SuperUsuario
+
+Si el usuario por pura coincidencia accede a secciones del sistema prohibidas la API esta preparada para denegar el acceso a usuarios no autorizados.
+
+![This is a alt text.](/capturas/rutalistadoDeUsuarios.png "This is a sample image.")
+
+El forntent realizara el mismo proceso, enviara un token de autorización del usuario actual. 
+
+![This is a alt text.](/capturas/authorizationBearerListUser.png "This is a sample image.")
+
+Sin embargo el sistema negara el acceso al recurso solicitado, en este caso el listado de los usuarios del sistema. Pues el recusro solicitado tiene información de cuentas de todos los usuarios.
+
+![This is a alt text.](/capturas/permisoDenegado.png "This is a sample image.")
+
+
+
 
 
 
