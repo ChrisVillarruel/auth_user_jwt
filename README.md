@@ -73,6 +73,13 @@ Sin embargo el sistema negara el acceso al recurso solicitado, en este caso el l
 
 ![This is a alt text.](/capturas/permisoDenegado.png "This is a sample image.")
 
+De lo contrario, si iniciamos sesión con un usuario que si cuente con permisos de administrador del sistema.
+
+![This is a alt text.](/capturas/superUserLogin.png "This is a sample image.")
+
+Y realizamos el proceso de autorización Bearer para acceder a los recursos del sistema. Me retornara un JSON con la información de todos los usuarios registrados en el sistema.
+
+![This is a alt text.](/capturas/superUserLogin.png "This is a sample image.")
 
 
 
