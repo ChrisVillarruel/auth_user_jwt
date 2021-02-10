@@ -79,7 +79,7 @@ De lo contrario, si iniciamos sesión con un usuario que si cuente con permisos 
 
 Y realizamos el proceso de autorización Bearer para acceder a los recursos del sistema. Me retornara un JSON con la información de todos los usuarios registrados en el sistema.
 
-![This is a alt text.](/capturas/superUserLogin.png "This is a sample image.")
+![This is a alt text.](/capturas/userslistSuperUser.png "This is a sample image.")
 
 
 
