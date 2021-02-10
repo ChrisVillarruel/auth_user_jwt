@@ -6,3 +6,4 @@ Aplicación web Backent implementando la arquitectura REST. Esta aplicación mos
 
 ### Capturas
 
+![This is a alt text.](/capturas/rutaRegister.png "This is a sample image.")
