@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import RegistrationSerializer, LoginSerializer, UserSerializer
+from .serializers import RegistrationSerializer, LoginSerializer, UserSerializer, UserListSerializer
 from .detail_error import msg_error
 from .renderers import UserJSONRenderer
 from .models import User
@@ -80,9 +80,9 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class UsersList(APIView):
     permission_classes = (IsAuthenticated, IsAdminUser)
-    serializer_class = UserSerializer
+    serializer_class = UserListSerializer
 
     def get(self, request):
-        query_set = User.objects.all()
+        query_set = User.objects.all().values('user_id', 'username', 'email', 'is_active')
         serializer = self.serializer_class(query_set, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
