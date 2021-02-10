@@ -42,13 +42,22 @@ Si todo fue correcto la api retornara su email, nombre de usuario y los tokens d
 
 ![This is a alt text.](/capturas/loginExitoso.png "This is a sample image.")
 
+#### Verificamos que el usuario actual este logeado.
 
+Para verificar que el usuario actual este logeado, nos dirigiremos a la ruta user. Esta ruta de retornara un JSON con todos mis datos, email, nombre de usuario
+y credenciales de acceso (Tokens)
 
+![This is a alt text.](/capturas/detallaUsuario.png "This is a sample image.")
 
+Si nosotros intentamos acceder a contenido sin estar autenticados y posteriormente autorizados por el sistema, me retornara el siguiente error de excepción.
 
+![This is a alt text.](/capturas/accesoDenegado.png "This is a sample image.")
 
+Para que el usuario actual pueda ver sus datos el frontent se encargara de enviarle al backent por medio de un token de autorización mismo que fue generado al iniciar sesión, que el usuario actual pertenece al sistema y que el token que el frontend envio fue firmado por el mismo sistema. De esta manera el sistema le dara permiso al usuario y retornara los datos del usuario. 
 
+![This is a alt text.](/capturas/authorizationBearer.png "This is a sample image.")
 
+![This is a alt text.](/capturas/authorizationExitosa.png "This is a sample image.")
 
 
 
