@@ -128,8 +128,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         una caducidad fecha establecida en 60 días en el futuro.
         """
         return {
-            'access_token': self.generate_jwt_access_token(),
-            'refresh_token': self.generate_jwt_refresh_token()
+            'access': self.generate_jwt_access_token(),
+            'refresh': self.generate_jwt_refresh_token()
         }
 
     def generate_jwt_access_token(self):
