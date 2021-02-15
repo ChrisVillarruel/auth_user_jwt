@@ -33,7 +33,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
         request.user = None
 
         # `auth_header` debe ser una matriz con dos elementos:
-        # 1) el nombre de el encabezado de autenticación (en este caso, "Token") y
+        # 1) el nombre de el encabezado de autenticación (en este caso, "Bearer") y
         # 2) el JWT contra el que debemos autenticarnos.
         auth_header = authentication.get_authorization_header(request).split()
         auth_header_prefix = self.authentication_header_prefix.lower()
@@ -65,7 +65,7 @@ class JWTAuthentication(authentication.BaseAuthentication):
             return None
 
         # A estas alturas, estamos seguros de que existe una * posibilidad *
-        # de que la autenticación tener éxito. Delegamos la autenticación
+        # de que la autenticación puede tener éxito. Delegamos la autenticación
         # de credenciales real al método a continuación.
         return self._authenticate_credentials(request, token)
 
@@ -79,11 +79,9 @@ class JWTAuthentication(authentication.BaseAuthentication):
         """
         try:
             payload = jwt.decode(token, settings.SECRET_KEY)
-        # except:
-        #     msg = 'Autenticación no válida. No se pudo decodificar el token.'
-        #     raise exceptions.AuthenticationFailed(msg)
+
         except jwt.ExpiredSignatureError as e:
-            msg = 'El token de activasión expiro'
+            msg = 'Su sesión actual ya expiro'
             raise exceptions.AuthenticationFailed(msg)
         except jwt.exceptions.DecodeError as e:
             msg = 'Autenticación no válida. No se pudo decodificar el token.'
