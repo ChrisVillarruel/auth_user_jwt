@@ -5,10 +5,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .serializers import RegistrationSerializer, LoginSerializer, UserSerializer, UserListSerializer
 from .detail_error import msg_error
 from .renderers import UserJSONRenderer
 from .models import User
+from .serializers import (
+    RegistrationSerializer,
+    LoginSerializer,
+    UserSerializer,
+    UserListSerializer)
 
 
 class RegistrationAPIView(APIView):
@@ -53,7 +57,7 @@ class LoginAPIView(APIView):
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
-    renderer_classes = (UserJSONRenderer,)
+    # renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
 
     def retrieve(self, request, *args, **kwargs):
@@ -86,3 +90,16 @@ class UsersList(APIView):
         query_set = User.objects.all().values('user_id', 'username', 'email', 'is_active')
         serializer = self.serializer_class(query_set, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# class LogoutAPIView(APIView):
+#     permission_classes = (IsAuthenticated,)
+#     serializer_class = LogoutSerializer
+
+#     def post(self, request):
+#         serializer = self.serializer_class(data=request.data)
+
+#         if serializer.is_valid():
+#             return Response({'success': 'adios'}, status=status.HTTP_200_OK)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
