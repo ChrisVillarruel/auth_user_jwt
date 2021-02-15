@@ -1,7 +1,10 @@
 # users.serializers
 from rest_framework import serializers
-from django.contrib.auth import authenticate
 from rest_framework import exceptions
+from django.conf import settings
+import jwt
+from datetime import datetime, timedelta, timezone
+import datetime as dt
 
 from .models import User
 
@@ -164,3 +167,26 @@ class UserListSerializer(serializers.ModelSerializer):
             'email': instance['email'],
             'is_active': instance['is_active']
         }
+
+
+# class LogoutSerializer(serializers.ModelSerializer):
+#     refresh = serializers.CharField(max_length=555)
+
+#     class Meta:
+#         model = User
+#         fields = ['refresh']
+
+#     def validate(self, data):
+#         refresh = data.get('refresh', None)
+#         try:
+#             payload = jwt.decode(refresh, settings.SECRET_KEY)
+#             print(type(payload['exp']))
+
+#             print(datetime.strptime(payload['exp'], "%d/%m/%y %H:%M"))
+#             # print(datetime.datetime.utcnow() + datetime.timedelta(days=60))
+#             # print(datetime.now().isoformat(timespec='minutes'))
+
+#         except jwt.exceptions.DecodeError as e:
+#             msg = 'Autenticación no válida. No se pudo decodificar el token.'
+#             raise exceptions.AuthenticationFailed(msg)
+#         return data
