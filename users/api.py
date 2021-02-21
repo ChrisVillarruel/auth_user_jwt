@@ -12,7 +12,8 @@ from .serializers import (
     RegistrationSerializer,
     LoginSerializer,
     UserSerializer,
-    UserListSerializer)
+    UserListSerializer,
+    LogoutSerializer)
 
 
 class RegistrationAPIView(APIView):
@@ -25,12 +26,8 @@ class RegistrationAPIView(APIView):
 
         # Validaciones
         if serializer.is_valid():
-            instance = serializer.save()
-            msg_success = {
-                'success': f'Hola {instance.username}',
-                'detal': serializer.data
-            }
-            return Response(msg_success, status=status.HTTP_201_CREATED)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         error = msg_error('Error de validación', 'BAD_REQUEST', 400, serializer.errors)
         return Response(error, status=status.HTTP_400_BAD_REQUEST)
@@ -92,14 +89,13 @@ class UsersList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# class LogoutAPIView(APIView):
-#     permission_classes = (IsAuthenticated,)
-#     serializer_class = LogoutSerializer
+class LogoutAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = LogoutSerializer
 
-#     def post(self, request):
-#         serializer = self.serializer_class(data=request.data)
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            return Response({'success': 'Sesión Cerrada'}, status=status.HTTP_204_NO_CONTENT)
 
-#         if serializer.is_valid():
-#             return Response({'success': 'adios'}, status=status.HTTP_200_OK)
-
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

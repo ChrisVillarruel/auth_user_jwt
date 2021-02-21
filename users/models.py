@@ -1,13 +1,12 @@
 # users.models
 
-import jwt
-from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from datetime import datetime, timedelta
-import datetime
 from django.conf import settings
-from django.contrib.auth.models import (
-    AbstractBaseUser, BaseUserManager, PermissionsMixin
-)
+from django.db import models
+import datetime
+import jwt
+import pytz
 
 
 class UserManager(BaseUserManager):
@@ -71,6 +70,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     # También necesitamos una forma de indetificar al usuario con su apellido
     last_name = models.CharField(db_index=True, max_length=255)
 
+    # access Token
+    access_token = models.CharField(db_index=True, max_length=255, null=True)
+
+    # refresh_token
+    refresh_token = models.CharField(db_index=True, max_length=255, null=True)
+
     # Cuando un usuario ya no desea utilizar nuestra plataforma, puede intentar eliminar
     # su cuenta. Eso es un problema para nosotros porque los datos que recopilamos son
     # valioso para nosotros y no queremos eliminarlo. Simplemente se le ofrecerá a los
@@ -105,7 +110,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         return self.email
 
-    @property
     def token(self):
         """
         Nos permite obtener el token de un usuario llamando a `user.token` en lugar de
@@ -114,23 +118,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         El decorador `@ property` anterior lo hace posible. `token` se llama
         una "propiedad dinámica" y obtener el valor del atributo.
         """
-        return self._generate_jwt_token()
+        return {
+            'access': self.access_token,
+            'refresh': self.refresh_token
+        }
 
     def get_full_name(self):
         return f'{self.first_name} {self.last_name}'
 
     def get_short_name(self):
         return self.username
-
-    def _generate_jwt_token(self):
-        """
-        Genera un token web JSON que almacena el ID de este usuario y tiene
-        una caducidad fecha establecida en 60 días en el futuro.
-        """
-        return {
-            'access': self.generate_jwt_access_token(),
-            'refresh': self.generate_jwt_refresh_token()
-        }
 
     def generate_jwt_access_token(self):
         """
@@ -140,11 +137,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
 
         access_token = jwt.encode({
-            'id': self.user_id,
             'email': self.email,
             'username': self.username,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=5),
-            'iat': datetime.datetime.utcnow(),
+            'token_type': 'access',
+            'exp': datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')) + datetime.timedelta(days=0, minutes=30),
+            'iat': datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')),
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return access_token.decode('utf-8')
@@ -156,13 +153,23 @@ class User(AbstractBaseUser, PermissionsMixin):
         sin la necesidad de iniciar sesión cada media hora. Este tipo de token puede durar el tiempo
         que el desarrollador decida. En este caso duarara 60 dias.
         """
-
         refresh_token = jwt.encode({
-            'id': self.user_id,
             'email': self.email,
             'username': self.username,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(days=60),
-            'iat': datetime.datetime.utcnow()
+            'token_type': 'refresh',
+            'exp': datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')) + datetime.timedelta(minutes=1),
+            'iat': datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')),
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return refresh_token.decode('utf-8')
+
+    def save(self, *args, **kwargs):
+        # Antes de crear el registro guardaremos los tokens generados
+        # cada vez que se llame el metodo save en la entidad User
+        # se generara un nuevo token
+
+        self.refresh_token = self.generate_jwt_refresh_token()
+
+        self.access_token = self.generate_jwt_access_token()
+
+        super().save(*args, **kwargs)

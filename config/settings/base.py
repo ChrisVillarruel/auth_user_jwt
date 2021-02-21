@@ -28,12 +28,13 @@ BASE_APPS = [
 
 # app local
 LOCAL_APPS = [
-    'users.apps.UsersConfig'
+    'users.apps.UsersConfig',
 ]
 
 # third apps
 THIRD_APPS = [
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS

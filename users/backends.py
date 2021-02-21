@@ -81,16 +81,26 @@ class JWTAuthentication(authentication.BaseAuthentication):
             payload = jwt.decode(token, settings.SECRET_KEY)
 
         except jwt.ExpiredSignatureError as e:
-            msg = 'Su sesión actual ya expiro'
+            msg = 'Su sesión actual ya expiro. Vuelva a iniciar sesión para continuar.'
             raise exceptions.AuthenticationFailed(msg)
         except jwt.exceptions.DecodeError as e:
             msg = 'Autenticación no válida. No se pudo decodificar el token.'
             raise exceptions.AuthenticationFailed(msg)
 
         try:
-            user = User.objects.get(pk=payload['id'])
+            # Indetificamos el tipo de token esta ingresando
+            if payload['token_type'] == 'access':
+                user = User.objects.get(access_token=token)
+
+            elif payload['token_type'] == 'refresh':
+                user = User.objects.get(refresh_token=token)
+
+            else:
+                msg = 'El sistema no identifico el token de autorización. Inicie Sesión de nuevo.'
+                raise exceptions.AuthenticationFailed(msg)
+
         except User.DoesNotExist:
-            msg = 'No se encontró ningún usuario que coincida con este token.'
+            msg = 'Debe iniciar sesión para continuar navegando.'
             raise exceptions.AuthenticationFailed(msg)
 
         if not user.is_active:

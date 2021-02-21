@@ -4,9 +4,11 @@ from rest_framework import exceptions
 from django.conf import settings
 import jwt
 from datetime import datetime, timedelta, timezone
-import datetime as dt
+# import datetime
+from django.contrib.auth import authenticate
 
 from .models import User
+# from .tokens import generate_access_token, generate_refresh_token
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -78,8 +80,8 @@ class LoginSerializer(serializers.Serializer):
         password = data.get('password', None)
 
         # El método `authenticate` es proporcionado por Django y maneja la verificación
-        # para un usuario que coincide con esta combinación de correo electrónico y contraseña. Date cuenta cómo
-        # pasamos `email` como el valor de` username` ya que en nuestro User
+        # para un usuario que coincide con esta combinación de correo electrónico y contraseña.
+        # Date cuenta cómo pasamos `email` como el valor de` username` ya que en nuestro User
         # modelo establecemos `USERNAME_FIELD` como` email`.
         user = authenticate(username=email, password=password)
 
@@ -96,6 +98,10 @@ class LoginSerializer(serializers.Serializer):
         if not user.is_active:
             raise exceptions.AuthenticationFailed(
                 'Este usuario ha sido desactivado.')
+
+        # Si todas las validaciónes fueron exitosas de manera interna llamaremos al metodo
+        # save() para indicarle al modelo que se van a actualizar los tokens viejos.
+        user.save()
 
         # El método `validate` debería devolver un diccionario de datos validados.
         # Estos son los datos que se pasan a los métodos `create` y` update`.
@@ -169,24 +175,26 @@ class UserListSerializer(serializers.ModelSerializer):
         }
 
 
-# class LogoutSerializer(serializers.ModelSerializer):
-#     refresh = serializers.CharField(max_length=555)
+class LogoutSerializer(serializers.ModelSerializer):
+    refresh_token = serializers.CharField(max_length=255)
 
-#     class Meta:
-#         model = User
-#         fields = ['refresh']
+    class Meta:
+        model = User
+        fields = ['refresh_token']
 
-#     def validate(self, data):
-#         refresh = data.get('refresh', None)
-#         try:
-#             payload = jwt.decode(refresh, settings.SECRET_KEY)
-#             print(type(payload['exp']))
+    def validate(self, attrs):
+        refresh = attrs.get('refresh_token', None)
+        try:
+            payload = jwt.decode(refresh, settings.SECRET_KEY)
+            user = User.objects.get(email=payload['email'])
+            user.refresh_token = None
+            user.save()
 
-#             print(datetime.strptime(payload['exp'], "%d/%m/%y %H:%M"))
-#             # print(datetime.datetime.utcnow() + datetime.timedelta(days=60))
-#             # print(datetime.now().isoformat(timespec='minutes'))
+        except jwt.exceptions.DecodeError as e:
+            msg = 'Error al decodificar el token.'
+            raise exceptions.AuthenticationFailed(msg)
+        except jwt.ExpiredSignatureError as e:
+            msg = 'Su sesión actual ya expiro. Vuelva a iniciar sesión para continuar.'
+            raise exceptions.AuthenticationFailed(msg)
 
-#         except jwt.exceptions.DecodeError as e:
-#             msg = 'Autenticación no válida. No se pudo decodificar el token.'
-#             raise exceptions.AuthenticationFailed(msg)
-#         return data
+        return attrs
