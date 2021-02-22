@@ -1,12 +1,13 @@
 # users.models
-
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from datetime import datetime, timedelta
-from django.conf import settings
 from django.db import models
 import datetime
-import jwt
 import pytz
+
+
+from .generate_tokens import generate_jwt_access_token, generate_jwt_refresh_token
+from .decode_token import get_token_expiration_date
 
 
 class UserManager(BaseUserManager):
@@ -48,7 +49,18 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class UsersToken(models.Model):
+    # access Token
+    access_token = models.CharField(db_index=True, max_length=255, null=True)
+
+    # refresh_token
+    refresh_token = models.CharField(db_index=True, max_length=255, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class User(AbstractBaseUser, PermissionsMixin, UsersToken):
     # Identificador unico que se va incrementando de forma automatica
     user_id = models.AutoField(auto_created=True, primary_key=True, serialize=False)
 
@@ -69,12 +81,6 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     # También necesitamos una forma de indetificar al usuario con su apellido
     last_name = models.CharField(db_index=True, max_length=255)
-
-    # access Token
-    access_token = models.CharField(db_index=True, max_length=255, null=True)
-
-    # refresh_token
-    refresh_token = models.CharField(db_index=True, max_length=255, null=True)
 
     # Cuando un usuario ya no desea utilizar nuestra plataforma, puede intentar eliminar
     # su cuenta. Eso es un problema para nosotros porque los datos que recopilamos son
@@ -110,6 +116,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         return self.email
 
+    def get_full_name(self):
+        return f'{self.first_name} {self.last_name}'
+
+    def get_short_name(self):
+        return self.username
+
     def token(self):
         """
         Nos permite obtener el token de un usuario llamando a `user.token` en lugar de
@@ -118,58 +130,26 @@ class User(AbstractBaseUser, PermissionsMixin):
         El decorador `@ property` anterior lo hace posible. `token` se llama
         una "propiedad dinámica" y obtener el valor del atributo.
         """
+
         return {
             'access': self.access_token,
             'refresh': self.refresh_token
         }
 
-    def get_full_name(self):
-        return f'{self.first_name} {self.last_name}'
-
-    def get_short_name(self):
-        return self.username
-
-    def generate_jwt_access_token(self):
-        """
-        Generar un token de acceso JWT que almacena información del usuario que se registro y tiene
-        un tiempo de vida muy reducida. Este tipo de token es utilizado para la activación
-        de una cuenta. Su tiempo de vida va entre los cinco minutos y media hora.
-        """
-
-        access_token = jwt.encode({
-            'email': self.email,
-            'username': self.username,
-            'token_type': 'access',
-            'exp': datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')) + datetime.timedelta(days=0, minutes=30),
-            'iat': datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')),
-        }, settings.SECRET_KEY, algorithm='HS256')
-
-        return access_token.decode('utf-8')
-
-    def generate_jwt_refresh_token(self):
-        """
-        Generar un refresh_token de JWT que almacena información del usuario que se registro y tiene
-        un tiempo vida mas alrgo. Este tipo de token es utilizado para la navegación dentro del sistema
-        sin la necesidad de iniciar sesión cada media hora. Este tipo de token puede durar el tiempo
-        que el desarrollador decida. En este caso duarara 60 dias.
-        """
-        refresh_token = jwt.encode({
-            'email': self.email,
-            'username': self.username,
-            'token_type': 'refresh',
-            'exp': datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')) + datetime.timedelta(minutes=1),
-            'iat': datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')),
-        }, settings.SECRET_KEY, algorithm='HS256')
-
-        return refresh_token.decode('utf-8')
-
     def save(self, *args, **kwargs):
-        # Antes de crear el registro guardaremos los tokens generados
-        # cada vez que se llame el metodo save en la entidad User
-        # se generara un nuevo token
+        date_now = datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')).strftime('%d-%b-%y')
 
-        self.refresh_token = self.generate_jwt_refresh_token()
+        # Si el campo refresh_token y access_token son vacios,
+        # quiere decir que el usuario es nuevo, entonces generamos
+        # dos tokens
+        if self.refresh_token is None or self.access_token is None:
+            self.refresh_token = generate_jwt_refresh_token(self.user_id, self.email, self.username)
+            self.access_token = generate_jwt_access_token(self.user_id, self.email, self.username)
 
-        self.access_token = self.generate_jwt_access_token()
+        # Si al llamar al metodo save, la fecha actual a la
+        # que se llamo el metodo es igual a la fecha de expiración
+        # del token, creamos un nuevo token
+        if date_now == get_token_expiration_date(self.refresh_token):
+            self.refresh_token = generate_jwt_refresh_token(self.user_id, self.email, self.username)
 
         super().save(*args, **kwargs)
