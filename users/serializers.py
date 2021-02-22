@@ -1,14 +1,13 @@
 # users.serializers
+
+from datetime import datetime, timedelta, timezone
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework import exceptions
 from django.conf import settings
 import jwt
-from datetime import datetime, timedelta, timezone
-# import datetime
-from django.contrib.auth import authenticate
 
 from .models import User
-# from .tokens import generate_access_token, generate_refresh_token
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -99,8 +98,10 @@ class LoginSerializer(serializers.Serializer):
             raise exceptions.AuthenticationFailed(
                 'Este usuario ha sido desactivado.')
 
-        # Si todas las validaciónes fueron exitosas de manera interna llamaremos al metodo
-        # save() para indicarle al modelo que se van a actualizar los tokens viejos.
+        # Si todas las validaciónes fueron exitosas, de manera interna llamaremos al metodo
+        # save() para indicarle al modelo que si la fecha de expiración del token almacenado
+        # es igual a la fecha a la que se inicio sesión, me genere un nuevo token
+        # de lo contrario me retorne el token almacenado.
         user.save()
 
         # El método `validate` debería devolver un diccionario de datos validados.
