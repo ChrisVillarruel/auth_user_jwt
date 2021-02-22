@@ -98,4 +98,5 @@ class LogoutAPIView(APIView):
         if serializer.is_valid():
             return Response({'success': 'Sesión Cerrada'}, status=status.HTTP_204_NO_CONTENT)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        error = msg_error('Error de validación', 'BAD_REQUEST', 400, serializer.errors)
+        return Response(error, status=status.HTTP_400_BAD_REQUEST)
