@@ -149,7 +149,7 @@ class User(AbstractBaseUser, PermissionsMixin, UsersToken):
         # Si al llamar al metodo save, la fecha actual a la que se llamo el
         # metodo es igual al dia anterior de la fecha de expiración del token,
         # creamos un nuevo token
-        if date_now == get_token_expiration_date(self.refresh_token):
+        if date_now >= get_token_expiration_date(self.refresh_token):
             self.refresh_token = generate_jwt_refresh_token(self.email, self.username)
 
         super().save(*args, **kwargs)
