@@ -140,16 +140,16 @@ class User(AbstractBaseUser, PermissionsMixin, UsersToken):
         date_now = datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')).strftime('%d-%b-%y')
 
         # Si el campo refresh_token y access_token son vacios,
-        # quiere decir que el usuario es nuevo, entonces generamos
-        # dos tokens
+        # quiere decir que el usuario es nuevo, por lo tanto generamos
+        # dos nuevos tokens
         if self.refresh_token is None or self.access_token is None:
-            self.refresh_token = generate_jwt_refresh_token(self.user_id, self.email, self.username)
-            self.access_token = generate_jwt_access_token(self.user_id, self.email, self.username)
+            self.refresh_token = generate_jwt_refresh_token(self.email, self.username)
+            self.access_token = generate_jwt_access_token(self.email, self.username)
 
-        # Si al llamar al metodo save, la fecha actual a la
-        # que se llamo el metodo es igual a la fecha de expiración
-        # del token, creamos un nuevo token
+        # Si al llamar al metodo save, la fecha actual a la que se llamo el
+        # metodo es igual al dia anterior de la fecha de expiración del token,
+        # creamos un nuevo token
         if date_now == get_token_expiration_date(self.refresh_token):
-            self.refresh_token = generate_jwt_refresh_token(self.user_id, self.email, self.username)
+            self.refresh_token = generate_jwt_refresh_token(self.email, self.username)
 
         super().save(*args, **kwargs)
