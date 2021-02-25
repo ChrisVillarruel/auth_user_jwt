@@ -32,7 +32,7 @@ def generate_jwt_refresh_token(email, username):
     que el desarrollador decida. En este caso duarara 150 dias.
     """
 
-    exp = datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')) + datetime.timedelta(days=10)
+    exp = datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')) + datetime.timedelta(days=60)
 
     refresh_token = jwt.encode({
         'email': email,
