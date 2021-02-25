@@ -137,7 +137,7 @@ class User(AbstractBaseUser, PermissionsMixin, UsersToken):
         }
 
     def save(self, *args, **kwargs):
-        date_now = datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')).strftime('%d-%b-%y')
+        date_now = datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')).strftime('%y%m%d')
 
         # Si el campo refresh_token y access_token son vacios,
         # quiere decir que el usuario es nuevo, por lo tanto generamos
