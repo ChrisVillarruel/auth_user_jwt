@@ -14,9 +14,9 @@ def get_token_expiration_date(token):
         # De la fecha de expiración del token le restamos
         # cinco dias, para que se actualice el token antes
         # de la fecha de expiración.
-        timestamp = payload['exp'] - 432000
+        timestamp = payload['exp'] - 500000
         dt_object = datetime.fromtimestamp(timestamp)
-        return dt_object.strftime('%d-%b-%y')
+        return dt_object.strftime('%y%m%d')
 
     except jwt.ExpiredSignatureError as e:
         msg = 'Su sesión actual ya caduco. Intente Iniciar sesión nuevamente. Si persiste el error comuniquese con el administrador del sistema.'
