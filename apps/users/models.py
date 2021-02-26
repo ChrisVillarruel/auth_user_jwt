@@ -8,7 +8,8 @@ import datetime
 import pytz
 
 # Modulos locales
-from .generate_tokens import generate_jwt_access_token, generate_jwt_refresh_token
+from apps.authentication.jwt_token import generate_jwt_token
+from apps.authentication.timezone import get_timezone
 from .decode_token import get_token_expiration_date
 from .abstract_models import UserToken, CreateOrUpdateUser
 
@@ -117,19 +118,19 @@ class User(AbstractBaseUser, PermissionsMixin, UserToken, CreateOrUpdateUser):
         }
 
     def save(self, *args, **kwargs):
-        date_now = datetime.datetime.now(tz=pytz.timezone('America/Mexico_City')).strftime('%y%m%d')
+        date_now = get_timezone().strftime('%y%m%d')
 
         # Si el campo refresh_token y access_token son vacios,
         # quiere decir que el usuario es nuevo, por lo tanto generamos
         # dos nuevos tokens
         if self.refresh_token is None or self.access_token is None:
-            self.refresh_token = generate_jwt_refresh_token(self.email, self.username)
-            self.access_token = generate_jwt_access_token(self.email, self.username)
+            self.access_token = generate_jwt_token(self.get_email(), self.get_username(), token='access', minutes=30)
+            self.refresh_token = generate_jwt_token(self.get_email(), self.get_username(), token='refresh', days=60)
 
         # Si al llamar al metodo save, la fecha actual a la que se llamo el
         # metodo es igual al dia anterior de la fecha de expiración del token,
         # creamos un nuevo token
         if date_now >= get_token_expiration_date(self.refresh_token):
-            self.refresh_token = generate_jwt_refresh_token(self.email, self.username)
+            self.access_token = generate_jwt_token(self.get_email(), self.get_username(), token='refresh', days=60)
 
         super().save(*args, **kwargs)
