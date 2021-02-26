@@ -9,6 +9,11 @@ from .timezone import get_timedelta, get_timezone
 
 
 def generate_jwt_token(email, username, token, days=0, minutes=0):
+    """
+    Se generaran tokens de acceso y de actualización.
+
+    """
+
     access_token = jwt.encode({
         'email': email,
         'username': username,
