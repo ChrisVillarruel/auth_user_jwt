@@ -29,6 +29,7 @@ BASE_APPS = [
 # app local
 LOCAL_APPS = [
     'apps.users',
+    'apps.authentication'
 ]
 
 # third apps
@@ -92,7 +93,7 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'exceptions.custom_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'users.backends.JWTAuthentication',
+        'apps.authentication.backends.JWTAuthentication',
     ),
 }
 
