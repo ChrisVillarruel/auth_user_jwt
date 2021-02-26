@@ -21,5 +21,4 @@ def get_timedelta(days=0, minutes=0):
 
     """
 
-
     return get_timezone() + datetime.timedelta(days=days, minutes=minutes)
