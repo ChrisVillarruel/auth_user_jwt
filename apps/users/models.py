@@ -105,11 +105,9 @@ class User(AbstractBaseUser, PermissionsMixin, UserToken, CreateOrUpdateUser):
 
     def token(self):
         """
-        Nos permite obtener el token de un usuario llamando a `user.token` en lugar de
-        `usuario.generate_jwt_token ().
+        Nos permite obtener el token de un usuario llamando a `user.token`
+        retornando el token que este almacenado en la base de datos.
 
-        El decorador `@ property` anterior lo hace posible. `token` se llama
-        una "propiedad dinámica" y obtener el valor del atributo.
         """
 
         return {
@@ -120,7 +118,7 @@ class User(AbstractBaseUser, PermissionsMixin, UserToken, CreateOrUpdateUser):
     def save(self, *args, **kwargs):
         date_now = get_timezone().strftime('%y%m%d')
 
-        # Si el campo refresh_token y access_token son vacios,
+        # Si el campo refresh_token y access_token estan vacios,
         # quiere decir que el usuario es nuevo, por lo tanto generamos
         # dos nuevos tokens
         if self.refresh_token is None or self.access_token is None:
@@ -128,7 +126,7 @@ class User(AbstractBaseUser, PermissionsMixin, UserToken, CreateOrUpdateUser):
             self.refresh_token = generate_jwt_token(self.get_email(), self.get_username(), token='refresh', days=60)
 
         # Si al llamar al metodo save, la fecha actual a la que se llamo el
-        # metodo es igual al dia anterior de la fecha de expiración del token,
+        # metodo es igual o mayor al dia de expiración del token,
         # creamos un nuevo token
         if date_now >= get_token_expiration_date(self.refresh_token):
             self.access_token = generate_jwt_token(self.get_email(), self.get_username(), token='refresh', days=60)
