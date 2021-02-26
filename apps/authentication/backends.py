@@ -29,12 +29,17 @@ class JWTAuthentication(authentication.BaseAuthentication):
                     y no devolvemos nada. Simplemente elevamos el `AuthenticationFailed`
                     excepción y deje que Django REST Framework manejar el resto.
 
+
         """
         request.user = None
 
-        # `auth_header` debe ser una matriz con dos elementos:
-        # 1) el nombre de el encabezado de autenticación (en este caso, "Bearer") y
-        # 2) el JWT contra el que debemos autenticarnos.
+        """
+        `auth_header` debe ser una matriz con dos elementos:
+        1) el JWT con el que debemos autenticarnos.
+        2) el nombre de el encabezado de autenticación (en este caso, "Bearer")
+
+
+        """
         auth_header = authentication.get_authorization_header(request).split()
         auth_header_prefix = self.authentication_header_prefix.lower()
 
@@ -42,44 +47,64 @@ class JWTAuthentication(authentication.BaseAuthentication):
             return None
 
         if len(auth_header) == 1:
-            # Encabezado de token no válido. No se proporcionaron credenciales.
-            # No intente autenticarse.
+            """
+            Encabezado de token no válido. No se proporcionaron credenciales.
+            No intente autenticarse.
+
+
+            """
             return None
 
         elif len(auth_header) > 2:
-            # Encabezado de token no válido. La cadena Token no debe contener espacios.
-            # No intente autenticarse.
+            """
+            Encabezado de token no válido. La cadena Token no debe contener espacios.
+            No intente autenticarse.
+
+
+            """
             return None
 
-        # La biblioteca JWT que estamos usando no puede manejar el tipo `byte`, que es
-        # comúnmente utilizado por las bibliotecas estándar en Python 3. Para solucionar esto,
-        # simplemente tenemos que decodificar `prefix` y` token`. Esto no hace para nada
-        # código limpio, pero es una buena decisión porque obtendríamos un error
-        # si no decodificamos estos valores.
+        """
+        La biblioteca JWT que estamos usando no puede manejar el tipo `byte`, que es
+        comúnmente utilizado por las bibliotecas estándar en Python 3. Para solucionar esto,
+        simplemente tenemos que decodificar `prefix` y` token`. Esto no hace para nada
+        código limpio, pero es una buena decisión porque obtendríamos un error
+        si no decodificamos estos valores.
+
+
+        """
         prefix = auth_header[0].decode('utf-8')
         token = auth_header[1].decode('utf-8')
 
         if prefix.lower() != auth_header_prefix:
-            # El prefijo de encabezado de autenticación no es el que esperábamos.
-            # No intente autenticarse.
+            """
+            El prefijo de encabezado de autenticación no es el que esperábamos.
+            No intente autenticarse.
+
+
+            """
             return None
 
-        # A estas alturas, estamos seguros de que existe una * posibilidad *
-        # de que la autenticación puede tener éxito. Delegamos la autenticación
-        # de credenciales real al método a continuación.
+        """
+        A estas alturas, estamos seguros de que existe una * posibilidad *
+        de que la autenticación puede tener éxito. Delegamos la autenticación
+        de credenciales real al método a continuación.
+
+
+        """
         return self._authenticate_credentials(request, token)
 
     def _authenticate_credentials(self, request, token):
         """
-
         Intente autenticar las credenciales proporcionadas.
         Si la autenticación es exitosa, devuelva el usuario y el token.
         Si no, arroja un error.
 
+
         """
         try:
             payload = jwt.decode(token, settings.SECRET_KEY)
-            print(payload)
+
             # Indetificamos el tipo de token esta ingresando
             if payload['token'] == 'access':
                 user = User.objects.get(access_token=token)
