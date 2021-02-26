@@ -4,10 +4,10 @@ from django.db import models
 
 class UserToken(models.Model):
     # access Token
-    access_token = models.CharField(db_index=True, max_length=255, null=True, default=None)
+    access_token = models.CharField(db_index=True, max_length=500, null=True, default=None)
 
     # refresh_token
-    refresh_token = models.CharField(db_index=True, max_length=255, null=True, default=None)
+    refresh_token = models.CharField(db_index=True, max_length=500, null=True, default=None)
 
     class Meta:
         abstract = True
