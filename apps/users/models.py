@@ -1,13 +1,16 @@
-# users.models
+# Modulos de Django
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from datetime import datetime, timedelta
 from django.db import models
+
+# Modulos de python
+from datetime import datetime, timedelta
 import datetime
 import pytz
 
-
+# Modulos locales
 from .generate_tokens import generate_jwt_access_token, generate_jwt_refresh_token
 from .decode_token import get_token_expiration_date
+from .abstract_models import UserToken, CreateOrUpdateUser
 
 
 class UserManager(BaseUserManager):
@@ -49,18 +52,7 @@ class UserManager(BaseUserManager):
         return user
 
 
-class UsersToken(models.Model):
-    # access Token
-    access_token = models.CharField(db_index=True, max_length=255, null=True)
-
-    # refresh_token
-    refresh_token = models.CharField(db_index=True, max_length=255, null=True)
-
-    class Meta:
-        abstract = True
-
-
-class User(AbstractBaseUser, PermissionsMixin, UsersToken):
+class User(AbstractBaseUser, PermissionsMixin, UserToken, CreateOrUpdateUser):
     # Identificador unico que se va incrementando de forma automatica
     user_id = models.AutoField(auto_created=True, primary_key=True, serialize=False)
 
@@ -76,12 +68,6 @@ class User(AbstractBaseUser, PermissionsMixin, UsersToken):
     # la forma más común de credencial de inicio de sesión.
     email = models.EmailField(db_index=True, unique=True)
 
-    # También necesitamos una forma de indetificar al usuario con su nombre
-    first_name = models.CharField(db_index=True, max_length=255)
-
-    # También necesitamos una forma de indetificar al usuario con su apellido
-    last_name = models.CharField(db_index=True, max_length=255)
-
     # Cuando un usuario ya no desea utilizar nuestra plataforma, puede intentar eliminar
     # su cuenta. Eso es un problema para nosotros porque los datos que recopilamos son
     # valioso para nosotros y no queremos eliminarlo. Simplemente se le ofrecerá a los
@@ -93,12 +79,6 @@ class User(AbstractBaseUser, PermissionsMixin, UsersToken):
     # Django espera que la bandera `is_staff` determina quien es admin y quien no
     # Para la mayoría de los usuarios, esta bandera siempre estará falso.
     is_staff = models.BooleanField(default=False)
-
-    # Una marca de tiempo que representa cuándo se creó este objeto.
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    # Una marca de tiempo que representa cuándo se actualizo este objeto.
-    updated_at = models.DateTimeField(auto_now=True)
 
     # La propiedad `USERNAME_FIELD` nos dice qué campo usaremos para iniciar sesión.
     # En este caso, queremos que sea el campo de correo electrónico.
@@ -116,11 +96,11 @@ class User(AbstractBaseUser, PermissionsMixin, UsersToken):
         """
         return self.email
 
-    def get_full_name(self):
-        return f'{self.first_name} {self.last_name}'
+    def get_username(self):
+        return f'{self.username}'
 
-    def get_short_name(self):
-        return self.username
+    def get_email(self):
+        return self.email.lower()
 
     def token(self):
         """
@@ -132,8 +112,8 @@ class User(AbstractBaseUser, PermissionsMixin, UsersToken):
         """
 
         return {
-            'access': self.access_token,
-            'refresh': self.refresh_token
+            'access_token': self.access_token,
+            'refresh_token': self.refresh_token
         }
 
     def save(self, *args, **kwargs):
