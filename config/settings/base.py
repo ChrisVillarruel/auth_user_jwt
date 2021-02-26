@@ -28,7 +28,7 @@ BASE_APPS = [
 
 # app local
 LOCAL_APPS = [
-    'users.apps.UsersConfig',
+    'apps.users',
 ]
 
 # third apps
