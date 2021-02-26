@@ -1,24 +1,25 @@
-# users.api
+# Moduloes de rest_framework
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+# Modulos locales
 from detail_error import msg_error
 from .renderers import UserJSONRenderer
 from .models import User
-from .serializers.serializers import (
-    RegistrationSerializer,
-    LoginSerializer,
-    UserSerializer,
-    UserListSerializer,
-    LogoutSerializer)
+from .serializers.register_serializer import RegistrationSerializer
+from .serializers.login_serializer import LoginSerializer
+from .serializers.user_serializer import UserSerializer
+from .serializers.logout_serializer import LogoutSerializer
+from .serializers.admin_serializer import UserListSerializer
 
 
 class RegistrationAPIView(APIView):
     # Permita que cualquier usuario (autenticado o no) llegue a este endpoint.
     permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
     serializer_class = RegistrationSerializer
 
     def post(self, request):
@@ -35,6 +36,7 @@ class RegistrationAPIView(APIView):
 
 class LoginAPIView(APIView):
     permission_classes = (AllowAny,)
+    renderer_classes = (UserJSONRenderer,)
     serializer_class = LoginSerializer
 
     def post(self, request):
@@ -54,7 +56,7 @@ class LoginAPIView(APIView):
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
-    # renderer_classes = (UserJSONRenderer,)
+    renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
 
     def retrieve(self, request, *args, **kwargs):
