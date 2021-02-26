@@ -5,10 +5,10 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .detail_error import msg_error
+from detail_error import msg_error
 from .renderers import UserJSONRenderer
 from .models import User
-from .serializers import (
+from .serializers.serializers import (
     RegistrationSerializer,
     LoginSerializer,
     UserSerializer,
