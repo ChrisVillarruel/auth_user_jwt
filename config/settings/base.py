@@ -29,7 +29,8 @@ BASE_APPS = [
 # app local
 LOCAL_APPS = [
     'apps.users',
-    'apps.authentication'
+    'apps.authentication',
+    'apps.base',
 ]
 
 # third apps
