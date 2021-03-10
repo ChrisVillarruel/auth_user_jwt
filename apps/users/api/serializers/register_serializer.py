@@ -47,7 +47,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             msg = 'La direccióm de correo electronico que usted ingreso ya existe.'
             raise serializers.ValidationError(msg)
 
-        return email.lower()
+        return value.lower()
 
     def validate_username(self, value):
         """
