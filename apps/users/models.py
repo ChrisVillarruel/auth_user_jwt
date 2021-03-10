@@ -1,5 +1,6 @@
 # Modulos de Django
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.forms import model_to_dict
 from django.db import models
 
 # Modulos de python
@@ -11,7 +12,7 @@ import pytz
 from apps.authentication.jwt_token import generate_jwt_token
 from apps.authentication.timezone import get_timezone
 from .decode_token import get_token_expiration_date
-from .abstract_models import UserToken, CreateOrUpdateUser
+from apps.base.models import BaseModel, UserBaseToken
 
 
 class UserManager(BaseUserManager):
@@ -22,10 +23,16 @@ class UserManager(BaseUserManager):
 
     Todo lo que tenemos que hacer es anular la función `create_user` que usaremos
     para crear objetos "Usuario".
+
+
     """
 
     def create_user(self, username, email, password=None):
-        """Crea y devuelve un "Usuario" con un correo electrónico, nombre de usuario y contraseña."""
+        """
+        Crea y devuelve un "Usuario" con un correo electrónico, nombre de usuario y contraseña.
+
+
+        """
         if username is None:
             raise TypeError('Los usuarios deben tener un nombre de usuario.')
 
@@ -41,6 +48,8 @@ class UserManager(BaseUserManager):
     def create_superuser(self, username, email, password):
         """
         Crea y devuelve un 'usuario' como superusuario y permisos de (admin)
+
+
         """
         if password is None:
             raise TypeError('Los superusuarios deben tener una contraseña.')
@@ -53,47 +62,73 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser, PermissionsMixin, UserToken, CreateOrUpdateUser):
+class User(AbstractBaseUser, PermissionsMixin, UserBaseToken, BaseModel):
     # Identificador unico que se va incrementando de forma automatica
     user_id = models.AutoField(auto_created=True, primary_key=True, serialize=False)
 
-    # Cada "Usuario" necesita un identificador único legible por humanos que
-    # podamos usar para representar el "Usuario" en la interfaz de usuario.
-    # Queremos indexar esta columna en la base de datos para mejorar el rendimiento
-    # de la búsqueda.
+    """
+    Cada "Usuario" necesita un identificador único legible por humanos que
+    podamos usar para representar el "Usuario" en la interfaz de usuario.
+    Queremos indexar esta columna en la base de datos para mejorar el rendimiento
+    de la búsqueda.
+
+
+    """
     username = models.CharField(db_index=True, max_length=255, unique=True)
 
-    # También necesitamos una forma de contactar al usuario y una forma de que el usuario se identifiquen
-    # ellos mismos al iniciar sesión. Dado que necesitamos una dirección de correo electrónico para contactar
-    # el usuario de todos modos, también usaremos el correo electrónico para iniciar sesión porque es
-    # la forma más común de credencial de inicio de sesión.
+    """
+    También necesitamos una forma de contactar al usuario y una forma de que el usuario se identifiquen
+    ellos mismos al iniciar sesión. Dado que necesitamos una dirección de correo electrónico para contactar
+    el usuario de todos modos, también usaremos el correo electrónico para iniciar sesión porque es
+    la forma más común de credencial de inicio de sesión.
+
+
+    """
     email = models.EmailField(db_index=True, unique=True)
 
-    # Cuando un usuario ya no desea utilizar nuestra plataforma, puede intentar eliminar
-    # su cuenta. Eso es un problema para nosotros porque los datos que recopilamos son
-    # valioso para nosotros y no queremos eliminarlo. Simplemente se le ofrecerá a los
-    # usuarios una forma de desactivar su cuenta en lugar de
-    # dejándolos borrarlo. De esa forma, ya no aparecerán en el sitio,
-    # pero aún podemos analizar los datos.
+    """
+    Cuando un usuario ya no desea utilizar nuestra plataforma, puede intentar eliminar
+    su cuenta. Eso es un problema para nosotros porque los datos que recopilamos son
+    valioso para nosotros y no queremos eliminarlo. Simplemente se le ofrecerá a los
+    usuarios una forma de desactivar su cuenta en lugar de
+    dejándolos borrarlo. De esa forma, ya no aparecerán en el sitio,
+    pero aún podemos analizar los datos.
+
+
+    """
     is_active = models.BooleanField(default=True)
 
-    # Django espera que la bandera `is_staff` determina quien es admin y quien no
-    # Para la mayoría de los usuarios, esta bandera siempre estará falso.
+    """
+    Django espera que la bandera `is_staff` determina quien es admin y quien no
+    Para la mayoría de los usuarios, esta bandera siempre estará falso.
+
+
+    """
     is_staff = models.BooleanField(default=False)
 
-    # La propiedad `USERNAME_FIELD` nos dice qué campo usaremos para iniciar sesión.
-    # En este caso, queremos que sea el campo de correo electrónico.
+    """
+    La propiedad `USERNAME_FIELD` nos dice qué campo usaremos para iniciar sesión.
+    En este caso, queremos que sea el campo de correo electrónico.
+
+
+    """
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
-    # Le indicamos a Django que la clase UserManager definida anteriormente debería administrar
-    # objetos de este tipo.
+    """
+    Le indicamos a Django que la clase UserManager definida anteriormente debería administrar
+    objetos de este tipo.
+
+
+    """
     objects = UserManager()
 
     def __str__(self):
         """
         Devuelve una representación en cadena de caracteres el correo
         de un usuario despues de haber creado el objeto.
+
+
         """
         return self.email
 
@@ -108,6 +143,7 @@ class User(AbstractBaseUser, PermissionsMixin, UserToken, CreateOrUpdateUser):
         Nos permite obtener el token de un usuario llamando a `user.token`
         retornando el token que este almacenado en la base de datos.
 
+
         """
 
         return {
@@ -118,16 +154,25 @@ class User(AbstractBaseUser, PermissionsMixin, UserToken, CreateOrUpdateUser):
     def save(self, *args, **kwargs):
         date_now = get_timezone().strftime('%y%m%d')
 
-        # Si el campo refresh_token y access_token estan vacios,
-        # quiere decir que el usuario es nuevo, por lo tanto generamos
-        # dos nuevos tokens
+        """
+        Si el campo refresh_token y access_token estan vacios,
+        quiere decir que el usuario es nuevo, por lo tanto generamos
+        dos nuevos tokens.
+
+
+        """
         if self.refresh_token is None or self.access_token is None:
             self.access_token = generate_jwt_token(self.get_email(), self.get_username(), token='access', minutes=30)
             self.refresh_token = generate_jwt_token(self.get_email(), self.get_username(), token='refresh', days=60)
 
-        # Si al llamar al metodo save, la fecha actual a la que se llamo el
-        # metodo es igual o mayor al dia de expiración del token,
-        # creamos un nuevo token
+        """
+        Si al llamar al metodo save, la fecha actual a la que se llamo el
+        metodo es igual o mayor al dia de expiración del token,
+        creamos un nuevo token
+
+
+        """
+
         if date_now >= get_token_expiration_date(self.refresh_token):
             self.access_token = generate_jwt_token(self.get_email(), self.get_username(), token='refresh', days=60)
 
