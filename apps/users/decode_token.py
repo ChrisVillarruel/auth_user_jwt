@@ -25,6 +25,7 @@ def get_token_expiration_date(token):
         cinco dias, para que se actualice el token antes
         de la fecha de expiración.
 
+
         """
 
         timestamp = payload['exp'] - 500000
