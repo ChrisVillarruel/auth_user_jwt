@@ -78,7 +78,7 @@ class LogoutAPIView(APIView):
         return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserRetrieveUpdateAPIView(RetrieveUpdateDestroyAPIView):
+class UserRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     permissions_classes = (IsAuthenticated,)
     serializer_class = UserSerializer
 
