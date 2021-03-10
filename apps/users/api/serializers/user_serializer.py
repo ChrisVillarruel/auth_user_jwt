@@ -25,6 +25,15 @@ class UserSerializer(serializers.ModelSerializer):
         """
         read_only_fields = ('token',)
 
+    def validate_email(self, value):
+        user = User.objects.filter(email=value).first()
+
+        if user.state == False:
+            msg = 'La cuenta de este usuario fue dada de baja temporal.'
+            raise serializers.ValidationError(msg)
+
+        return value
+
     def update(self, instance, validated_data):
         """
         Realiza una actualización en un usuario.
