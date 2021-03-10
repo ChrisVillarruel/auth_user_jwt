@@ -7,10 +7,4 @@ Aplicación web Backent implementando la arquitectura REST. Esta aplicación mos
 
 ## Actualización.
 
-Se creo una nueva versión de la aplicación REST ubicada en la rama save_token. Los cambios mas notorios son:
-
-- La posibilidad de almacenar los tokens de acceso y de actaulización en la base de datos.
-- Un cierre de sesión mas seguro.
-- Los tokens se actualizaran de manera automatica. Siempre y cuando el usuario ingrese sus crendenciales nuevamente.
-- Control de errores mas robusto. 
-
+Se creo una nueva versión de la aplicación REST ubicada en la rama [save_token](https://github.com/ChrisVillarruel/auth_user_jwt/tree/save_token "save_token") .  Por favor haga clic en el vinculo siguiente [save_token](https://github.com/ChrisVillarruel/auth_user_jwt/tree/save_token "save_token").
