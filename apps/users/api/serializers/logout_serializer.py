@@ -17,6 +17,7 @@ class LogoutSerializer(serializers.ModelSerializer):
     los tokens almacenados, de esa forma evitamos que un usuario
     le pertenezcan multiples tokens.
 
+
     """
     token = serializers.CharField()
 
@@ -28,6 +29,7 @@ class LogoutSerializer(serializers.ModelSerializer):
         """
         Obtenemos el token.
         Puede ser el token de acceso o de actualización
+
 
         """
         token = attrs.get('token', None)
