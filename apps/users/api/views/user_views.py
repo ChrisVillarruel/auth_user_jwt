@@ -1,6 +1,6 @@
 # modulos nativos de rest_framework
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView, RetrieveDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -113,6 +113,15 @@ class UserRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         return Response({'message': 'Tus datos se actualizaron con exito.'}, status=status.HTTP_200_OK)
 
     def destroy(self, request):
+        """
+        Este metodo permitira dar de baja la cuenta de un usuario.
+        Por lo tanto todos los datos el usuario "Desaparecera" del sistema.
+
+        Este metodo permitira seguir teniendo la cuenta del usaurio
+        pero sin ser vista por los demas.
+
+
+        """
         user = self.get_queryset(request.user)
 
         if user is not None:
@@ -124,3 +133,21 @@ class UserRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
 
         error = msg_error('Error', 'BAD_REQUEST', 400, 'Ups. Ocurrio un error en su sesión actual.')
         return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserRetrieveDestroyAPIView(RetrieveDestroyAPIView):
+    """
+    Esta vista permitira eliminar la cuenta de un usuario de
+    manera permanente.
+
+
+    """
+    permissions_classes = (IsAuthenticated,)
+
+    def get_queryset(self, email):
+        return User.objects.filter(email=email)
+
+    def destroy(self, request):
+        queryset = self.get_queryset(request.user).delete()
+        msg = {'success': 'Su usuario fue eliminado de forma definitiva.'}
+        return Response(msg, status=status.HTTP_200_OK)
