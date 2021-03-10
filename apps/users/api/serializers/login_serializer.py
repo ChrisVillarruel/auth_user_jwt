@@ -61,6 +61,16 @@ class LoginSerializer(serializers.Serializer):
             raise exceptions.AuthenticationFailed(msg)
 
         """
+        Si la cuenta del usuario fue eliminada de manera temporal y si
+        el usuario vuelve a iniciar sesión. Se activa la cuenta
+        nuevamente.
+
+
+        """
+        if user.state == False:
+            user.state = True
+
+        """
         Django proporciona un metodo llamado save. Este metodo nos permite hacer una
         serie de transacciones antes de guardar un registro.
         Diríjase al modulo apps.users.models y busques el metodo save
