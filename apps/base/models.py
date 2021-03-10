@@ -13,7 +13,7 @@ class BaseModel(models.Model):
     sin necesidad de eliminar la cuenta completamente
 
     """
-    state = models.BooleanField("Este campo no lo puede modificar el administrador.", default=True)
+    state = models.BooleanField("Estado: Prohibido modificar este campo.", default=True)
 
     class Meta:
         abstract = True
