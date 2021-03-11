@@ -6,5 +6,5 @@ urlpatterns = [
     path('login/', LoginAPIView.as_view()),
     path('logout/', LogoutAPIView.as_view()),
     path('account/', UserRetrieveUpdateDestroyAPIView.as_view()),
-    path('account-delte/', UserRetrieveDestroyAPIView.as_view()),
+    path('account-delete/', UserRetrieveDestroyAPIView.as_view()),
 ]
