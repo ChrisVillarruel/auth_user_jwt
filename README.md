@@ -15,19 +15,19 @@ Se creo una nueva versión de la aplicación.
 
 ## Actualización | 10 de Marzo del 2021
 
-Se creo una nueva versión de la aplicación. En este versión se realizaron grandes cambios dentro del codigo fuente.
-Lo mas destacado de esta nueva versión son:
+Se actualizo la versión de la aplicación. En esta versión se realizaron grandes cambios dentro del codigo fuente.
+Lo mas destacado de la actualización es:
 
 - La posibilidad de que un usuario pueda suspender su cuenta.
-- La posibilidad de eliminar de forma permanente la cuenta de un usuario.
+- La posibilidad de eliminar de forma definitica la cuenta de un usuario.
 
 Cambios dentro del codigo fuente:
 
 - La implementación de vistas genericas.
 - Implementación de modelos abstractos.
 - Se mejoro la escalabilidad del codigo fuente.
-- Se estructuro mas el codigo fuente.
-- Se agrego un archivo de dependencias para ejecutar la aplicación de manera local. 
+- Se estructuro el sistema de archivos del proyecto.
+- Se agrego un archivo de dependencias. 
 
 
 #### El repositorio se actualizara constantemente.
