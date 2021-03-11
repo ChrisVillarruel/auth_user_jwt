@@ -19,7 +19,7 @@ Se actualizo la versión de la aplicación. En esta versión se realizaron grand
 Lo mas destacado de la actualización es:
 
 - La posibilidad de que un usuario pueda suspender su cuenta.
-- La posibilidad de eliminar de forma definitica la cuenta de un usuario.
+- La posibilidad de eliminar de forma definitiva la cuenta de un usuario.
 
 Cambios dentro del codigo fuente:
 
