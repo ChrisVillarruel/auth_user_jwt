@@ -9,11 +9,15 @@ from django.contrib.auth import authenticate
 from apps.users.models import User
 
 
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(serializers.ModelSerializer):
     email = serializers.CharField(max_length=255)
     username = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(max_length=128, min_length=8, write_only=True)
-    token = serializers.CharField(max_length=255, read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['email', 'username', 'password', 'token']
+        read_only_fields = ('token',)
 
     def validate(self, data):
         """

@@ -27,13 +27,17 @@ class RegistrationSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255, min_length=4)
     password = serializers.CharField(max_length=128, min_length=8, write_only=True)
 
-    # El cliente no debería poder enviar un token junto con una solicitud de registro.
-    # Hacemos el `token` de solo lectura para que maneje eso por nosotros.
-    token = serializers.CharField(max_length=255, read_only=True)
-
     class Meta:
         model = User
         fields = ['email', 'username', 'password', 'token']
+
+        """
+        El cliente no debería poder enviar un token junto con una solicitud de registro.
+        Hacemos el `token` de solo lectura para que maneje eso por nosotros.
+
+
+        """
+        read_only_fields = ('token',)
 
     def validate_email(self, value):
         """
