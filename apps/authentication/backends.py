@@ -117,11 +117,13 @@ class JWTAuthentication(authentication.BaseAuthentication):
                 raise exceptions.AuthenticationFailed(msg)
 
         except jwt.ExpiredSignatureError as e:
-            msg = 'Su sesión actual ya expiro. Vuelva a iniciar sesión para continuar.'
+            msg = 'Sesión expirada vuelva a iniciar sesión para continuar.'
             raise exceptions.AuthenticationFailed(msg)
+
         except jwt.exceptions.DecodeError as e:
             msg = 'Autenticación no válida. No se pudo decodificar el token.'
             raise exceptions.AuthenticationFailed(msg)
+
         except User.DoesNotExist:
             msg = 'Debe iniciar sesión para continuar navegando.'
             raise exceptions.AuthenticationFailed(msg)
