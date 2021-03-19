@@ -11,7 +11,7 @@ import pytz
 # Modulos locales
 from apps.authentication.jwt_token import generate_jwt_token
 from apps.authentication.timezone import get_timezone
-from .decode_token import get_token_expiration_date
+from .get_token_expiration import get_token_expiration_date
 from apps.base.models import BaseModel, UserBaseToken
 
 
