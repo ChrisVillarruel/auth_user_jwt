@@ -9,7 +9,7 @@ from rest_framework import status
 from apps.users.models import User
 from apps.users.api.serializers.user_serializer import UserSerializer
 from apps.users.api.serializers.login_serializer import LoginSerializer
-from detail_error import msg_error, resource_destroy, logout, resource_updated
+from detail_error import resource_destroy, logout, resource_updated
 from apps.users.api.serializers.register_serializer import RegistrationSerializer
 from apps.users.api.serializers.admin_serializer import UserListSerializer, UserDetailSerializer
 
