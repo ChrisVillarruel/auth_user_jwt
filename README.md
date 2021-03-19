@@ -10,7 +10,7 @@ Se creo una nueva versión de la aplicación.
 
 - La posibilidad de almacenar los tokens de acceso y de actaulización en la base de datos.
 - Un cierre de sesión mas seguro.
-- Los tokens se actualizaran de manera automatica. Siempre y cuando el usuario ingrese sus crendenciales nuevamente.
+- Los tokens se actualizaran de manera automatica.
 - Control de errores mas robusto.
 
 ## Actualización | 10 de Marzo del 2021
@@ -28,6 +28,15 @@ Cambios dentro del codigo fuente:
 - Se mejoro la escalabilidad del codigo fuente.
 - Se estructuro el sistema de archivos del proyecto.
 - Se agrego un archivo de dependencias. 
+
+## Actualización | 19 de marzon del 2021
+
+Se actualizo la versión de la aplicación. En esta versión se realizaron cambios dentro del codigo fuente.
+Lo mas destacado de la actualización es:
+
+- Reducción de codigo repetido.
+- Se implemento una nueva vista de cierre de sesión.
+- Eliminación del seriaizador Logout.
 
 
 #### El repositorio se actualizara constantemente.
