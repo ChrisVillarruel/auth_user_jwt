@@ -1,17 +1,15 @@
 # modulos nativos de rest_framework
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView, RetrieveDestroyAPIView
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
 # Modulos locales
 from apps.users.models import User
-from detail_error import msg_error
-# from users.renderers import UserJSONRenderer
-from apps.users.api.serializers.login_serializer import LoginSerializer
 from apps.users.api.serializers.user_serializer import UserSerializer
-from apps.users.api.serializers.logout_serializer import LogoutSerializer
+from apps.users.api.serializers.login_serializer import LoginSerializer
+from detail_error import msg_error, resource_destroy, logout, resource_updated
 from apps.users.api.serializers.register_serializer import RegistrationSerializer
 from apps.users.api.serializers.admin_serializer import UserListSerializer, UserDetailSerializer
 
@@ -23,18 +21,13 @@ class UserCreateAPIView(CreateAPIView):
 
 
     """
-    serializer_class = RegistrationSerializer
     permissions_classes = (AllowAny,)
+    serializer_class = RegistrationSerializer
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        error = msg_error('Error de validación', 'BAD_REQUEST', 400, serializer.errors)
-        return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class LoginAPIView(APIView):
@@ -49,33 +42,28 @@ class LoginAPIView(APIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        error = msg_error('Error de validación', 'BAD_REQUEST', 400, serializer.errors)
-        return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class LogoutAPIView(APIView):
-    """
-    Para que el usuario pueda cerrar sesión, el cliente debera enviar
-    el token de actualización para que el servidor cancele el token y
-    genere uno nuevo.
+class LogoutRetrieveDestroyAPIView(RetrieveDestroyAPIView):
+    # Nuevo controlador
 
-
-    """
     permissions_classes = (IsAuthenticated,)
-    serializer_class = LogoutSerializer
+    serializer_class = UserSerializer
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+    def get_queryset(self, email):
+        return self.get_serializer().Meta.model.objects.filter(email=email).first()
 
-        if serializer.is_valid():
-            return Response({'message': 'Sesión Finalizada. Vuelva pronto!'}, status=status.HTTP_204_NO_CONTENT)
+    def destroy(self, request):
+        # Cerrar sesión
 
-        error = msg_error('Error de validación', 'BAD_REQUEST', 400, serializer.errors)
-        return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        queryset = self.get_queryset(request.user)
+        queryset.refresh_token = None
+        queryset.access_token = None
+        queryset.save()
+
+        return Response(logout(), status=status.HTTP_204_NO_CONTENT)
 
 
 class UserRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
@@ -87,61 +75,40 @@ class UserRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
             return self.get_serializer().Meta.model.objects.filter(email=email).first()
 
     def retrieve(self, request, *args, **kwargs):
-        """
-        No hay nada que validar o guardar aquí. En su lugar,
-        solo queremos que el serializadornse se encargue de convertir
-        nuestro objeto `User` en algo que pueda ser JSON y enviarlo al cliente.
+        # Muestra información del usuario actual
 
-        Esta vista solo mostrara la información del usuario
-
-
-        """
         serializer = self.serializer_class(request.user)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
-        """
-        Se actualizara de manera parcial los datos del usuario
+        # Actualizar cuenta
 
-
-        """
         serializer = self.serializer_class(self.get_queryset(request.user), data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response({'message': 'Tus datos se actualizaron con exito.'}, status=status.HTTP_200_OK)
+        return Response(resource_updated(), status=status.HTTP_200_OK)
 
     def destroy(self, request):
-        """
-        Este metodo permitira dar de baja la cuenta de un usuario.
-        Por lo tanto todos los datos el usuario "Desaparecera" del sistema.
+        # Suspender cuenta
 
-        Este metodo permitira seguir teniendo la cuenta del usaurio
-        pero sin ser vista por los demas.
-
-
-        """
         user = self.get_queryset(request.user)
 
         if user is not None:
             user.state = False
+            user.access_token = None
+            user.refresh_token = None
             user.save()
 
-            msg = {'message': 'Su cuenta se dio de baja. Regresa cuando gustes!'}
-            return Response(msg, status=status.HTTP_200_OK)
+            return Response(resource_destroy(), status=status.HTTP_200_OK)
 
         error = msg_error('Error', 'BAD_REQUEST', 400, 'Ups. Ocurrio un error en su sesión actual.')
         return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserRetrieveDestroyAPIView(RetrieveDestroyAPIView):
-    """
-    Esta vista permitira eliminar la cuenta de un usuario de
-    manera permanente.
+    # Eliminar cuenta de manera permanente
 
-
-    """
     permissions_classes = (IsAuthenticated,)
 
     def get_queryset(self, email):
@@ -149,5 +116,4 @@ class UserRetrieveDestroyAPIView(RetrieveDestroyAPIView):
 
     def destroy(self, request):
         queryset = self.get_queryset(request.user).delete()
-        msg = {'success': 'Su usuario fue eliminado de forma definitiva.'}
-        return Response(msg, status=status.HTTP_200_OK)
+        return Response(resource_destroy(), status=status.HTTP_200_OK)
