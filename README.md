@@ -1,24 +1,24 @@
-# Django Rest Framwork - User Authenticate
+# User Authenticate Web Token
 
 ### Descripción
 
-Aplicación web Backent implementando la arquitectura REST. Esta aplicación mostrara el funcionamiento de la autenticación de usuarios y permisos de acceso de Django Rest Framwork. La autenticación esta basada en Tokens utilizando el estándar Json Web Token (JWT).
+Aplicación Web API escrito con Django-Rest-Framework aplicando el metodo de autenticación via tokens implementado el estandar Json-Web-Token (JWT). 
 
 ## Actualización.
 
-Se creo una nueva versión de la aplicación.
+Se añadio una nueva versión:
 
-- La posibilidad de almacenar los tokens de acceso y de actaulización en la base de datos.
-- Un cierre de sesión mas seguro.
-- Los tokens se actualizaran de manera automatica.
-- Control de errores mas robusto.
+- Los tokens de autenticación ahora se almacenan en la base de datos.
+- Un cierre de sesión mas robusto.
+- Actualización de tokens automatizado.
+- Menejo de errores mas robusto.
 
 ## Actualización | 10 de Marzo del 2021
 
-Se actualizo la versión de la aplicación. En esta versión se realizaron grandes cambios dentro del codigo fuente.
+Se añadio una nueva versión. Dentro de esta versión se añadieron grandes cambios dentro del codigo fuente.
 Lo mas destacado de la actualización es:
 
-- La posibilidad de que un usuario pueda suspender su cuenta.
+- La Posibilidad de que un usuario pueda suspender su cuenta.
 - La posibilidad de eliminar de forma definitiva la cuenta de un usuario.
 
 Cambios dentro del codigo fuente:
@@ -31,7 +31,7 @@ Cambios dentro del codigo fuente:
 
 ## Actualización | 19 de marzon del 2021
 
-Se actualizo la versión de la aplicación. En esta versión se realizaron cambios dentro del codigo fuente.
+Se añadio una nueva versión. Dentro de esta versión se añadieron cambios dentro del codigo fuente.
 Lo mas destacado de la actualización es:
 
 - Reducción de codigo repetido.
@@ -39,7 +39,7 @@ Lo mas destacado de la actualización es:
 - Eliminación del seriaizador Logout.
 
 
-#### El repositorio se actualizara constantemente.
+#### Este repositorio sera actualizado constantemente.
 
 ### Capturas
 
