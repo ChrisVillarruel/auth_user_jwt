@@ -52,7 +52,7 @@ Lo mas destacado de la actualización es:
 
 #### Este repositorio sera actualizado constantemente.
 
-## Ejemplo del funcionaminto del proyecto.
+## Ejemplo del funcionamiento del proyecto.
 
 #### Regsitro de un Usuario
 
@@ -65,3 +65,16 @@ Lo mas destacado de la actualización es:
 #### Registro Fallido. 
 
 ![This is a alt text.](/screenshots/user_register_failure.png "This is a sample image.")
+
+#### Inicio de sesión:
+
+![This is a alt text.](/screenshots/user_login.png "This is a sample image.")
+
+#### Inicio de sesión Exitoso: 
+
+![This is a alt text.](/screenshots/user_login_success.png "This is a sample image.")
+
+#### Inicio de sesión Fallido: 
+
+![This is a alt text.](/screenshots/user_login_failure.png "This is a sample image.")
+
