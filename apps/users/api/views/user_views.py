@@ -1,6 +1,5 @@
 # modulos nativos de rest_framework
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView, RetrieveDestroyAPIView
-from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -12,6 +11,7 @@ from apps.users.api.serializers.login_serializer import LoginSerializer
 from type_messages import resource_destroy, logout, resource_updated
 from apps.users.api.serializers.register_serializer import RegistrationSerializer
 from apps.users.api.serializers.admin_serializer import UserListSerializer, UserDetailSerializer
+from permissions import IsStandardUser
 
 
 class UserCreateAPIView(CreateAPIView):
@@ -21,12 +21,13 @@ class UserCreateAPIView(CreateAPIView):
 
 
     """
-    permissions_classes = (AllowAny,)
+    permissions_classes = (IsStandardUser,)
     serializer_class = RegistrationSerializer
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
@@ -37,7 +38,7 @@ class LoginAPIView(APIView):
 
 
     """
-    permissions_classes = (AllowAny,)
+    permissions_classes = [IsStandardUser]
     serializer_class = LoginSerializer
 
     def post(self, request):
@@ -49,7 +50,7 @@ class LoginAPIView(APIView):
 class LogoutRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     # Nuevo controlador
 
-    permissions_classes = (IsAuthenticated,)
+    permissions_classes = [IsStandardUser]
     serializer_class = UserSerializer
 
     def get_queryset(self, email):
@@ -67,7 +68,7 @@ class LogoutRetrieveDestroyAPIView(RetrieveDestroyAPIView):
 
 
 class UserRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
-    permissions_classes = (IsAuthenticated,)
+    permissions_classes = [IsStandardUser]
     serializer_class = UserSerializer
 
     def get_queryset(self, email):
@@ -93,26 +94,21 @@ class UserRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         # Suspender cuenta
 
         user = self.get_queryset(request.user)
+        user.state = False
+        user.access_token = None
+        user.refresh_token = None
+        user.save()
 
-        if user is not None:
-            user.state = False
-            user.access_token = None
-            user.refresh_token = None
-            user.save()
-
-            return Response(resource_destroy(), status=status.HTTP_200_OK)
-
-        error = msg_error('Error', 'BAD_REQUEST', 400, 'Ups. Ocurrio un error en su sesión actual.')
-        return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        return Response(resource_destroy(), status=status.HTTP_200_OK)
 
 
 class UserRetrieveDestroyAPIView(RetrieveDestroyAPIView):
     # Eliminar cuenta de manera permanente
-
-    permissions_classes = (IsAuthenticated,)
+    serializer_class = UserSerializer
+    permissions_classes = (IsStandardUser,)
 
     def get_queryset(self, email):
-        return User.objects.filter(email=email)
+        return self.get_serializer().Meta.model.objects.filter(email=email).first()
 
     def destroy(self, request):
         queryset = self.get_queryset(request.user).delete()
