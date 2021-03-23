@@ -92,6 +92,6 @@ Lo mas destacado de la actualización es:
 
 - Este error sucede porque el usuario no ha iniciado sesión.
 
-![This is a alt text.](/screenshots/user_login_failure.png "This is a sample image.")
+![This is a alt text.](/screenshots/see_account_failure.png "This is a sample image.")
 
 
