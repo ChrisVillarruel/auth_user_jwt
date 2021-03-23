@@ -38,6 +38,17 @@ Lo mas destacado de la actualización es:
 - Se implemento una nueva vista de cierre de sesión.
 - Eliminación del seriaizador Logout.
 
+## Actualización | 23 de marzo del 2021
+
+Se detecto un error muy fuerte dentro de los permisos de acceso, por lo tanto, se crearon permisos personalizados con el 
+objetivo de mejorar el acceso dentro de la aplicación sin embargo no es una solución definitiva pues se sigue investigando 
+en cómo mejorar los permisos de acceso.
+
+Lo mas destacado de la actualización es:
+
+- Permisos personalizados.
+  
+
 
 #### Este repositorio sera actualizado constantemente.
 
