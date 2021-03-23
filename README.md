@@ -78,3 +78,20 @@ Lo mas destacado de la actualización es:
 
 ![This is a alt text.](/screenshots/user_login_failure.png "This is a sample image.")
 
+#### Mostrar información del usuario:
+
+- Igresamos el token de autenticación para ver la información del usuario.
+
+![This is a alt text.](/screenshots/see_account.png "This is a sample image.")
+
+#### Petición Exitosa: 
+
+![This is a alt text.](/screenshots/see_account_success.png "This is a sample image.")
+
+#### Petición Fallida: 
+
+- Este error sucede porque el usuario no ha iniciado sesión.
+
+![This is a alt text.](/screenshots/user_login_failure.png "This is a sample image.")
+
+
