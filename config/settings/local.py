@@ -13,11 +13,11 @@ ALLOWED_HOSTS = []
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'auth_user_jwt',
+        'NAME': 'user_auth_jwt',
         'USER': 'chris',
         'PASSWORD': 'givc980909',
         'HOST': 'localhost',
-        'PORT': 3306,
+        'PORT': 3307,
     }
 }
 
