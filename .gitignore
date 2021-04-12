@@ -1,1 +1,6 @@
 auth_users_jwt/capturas/
+__pycache__
+auth_users_jwt/apps/authentication/migrations
+
+
+
