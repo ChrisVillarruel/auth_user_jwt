@@ -1,8 +1,14 @@
+# modulos nativos de django
+from django.contrib.sessions.models import Session
+
 # modulos nativos de rest_framework
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, CreateAPIView, RetrieveDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
+
+# modulos de python
+from datetime import datetime
 
 # Modulos locales
 from apps.users.models import User
@@ -13,6 +19,20 @@ from apps.users.api.serializers.register_serializer import RegistrationSerialize
 from apps.users.api.serializers.admin_serializer import UserListSerializer, UserDetailSerializer
 from permissions import IsStandardUser
 
+
+def delete_session(user_id):
+    """ 
+    De todas las sesiones filtrame unicamente las que sean mayor o igual a la fecha actual
+    
+
+    """
+    all_sessions = Session.objects.filter(expire_date__gte = datetime.now())
+    if all_sessions.exists():
+        for session in all_sessions:
+            session_data = session.get_decoded()
+            if user_id == int(session_data.get('_auth_user_id')): 
+                session.delete()
+    return None
 
 class UserCreateAPIView(CreateAPIView):
     """
@@ -60,6 +80,12 @@ class LogoutRetrieveDestroyAPIView(RetrieveDestroyAPIView):
         # Cerrar sesión
 
         queryset = self.get_queryset(request.user)
+        """
+        Eliminamos todas las sesiones activas
+
+
+        """
+        delete_session(queryset.user_id)
         queryset.refresh_token = None
         queryset.access_token = None
         queryset.save()
@@ -94,6 +120,7 @@ class UserRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
         # Suspender cuenta
 
         user = self.get_queryset(request.user)
+        delete_session(user.user_id)
         user.state = False
         user.access_token = None
         user.refresh_token = None
@@ -112,4 +139,5 @@ class UserRetrieveDestroyAPIView(RetrieveDestroyAPIView):
 
     def destroy(self, request):
         queryset = self.get_queryset(request.user).delete()
+        delete_session(queryset.user_id)
         return Response(resource_destroy(), status=status.HTTP_200_OK)
