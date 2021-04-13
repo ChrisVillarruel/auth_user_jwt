@@ -4,9 +4,15 @@ from rest_framework import exceptions
 
 # Modulos de django
 from django.contrib.auth import authenticate
+from django.conf import settings
+
+# Modulos de python
+from datetime import datetime
+
 
 # Modulos locales
 from apps.users.models import User
+from apps.authentication.timezone import get_timezone
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -81,6 +87,14 @@ class LoginSerializer(serializers.ModelSerializer):
 
 
         """
+        
+        """
+        Asignamos la hora actual de inicio de sesión, esta hora por alguna razon 
+        la toma de algun servidor de estados unidos.
+
+
+        """
+        user.last_login = get_timezone() 
         user.save()
 
         """
