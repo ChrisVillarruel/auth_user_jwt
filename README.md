@@ -48,6 +48,13 @@ Lo mas destacado de la actualización es:
 
 - Permisos personalizados.
   
+## Actualización | 23 de Abril del 2021
+
+Lo mas destacado de la actualización es:
+
+- Ahora al cerrar sesión se podra eliminar las sesiones de un usuario.
+
+
 
 
 #### Este repositorio sera actualizado constantemente.
