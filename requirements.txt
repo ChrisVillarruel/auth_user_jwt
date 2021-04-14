@@ -1,8 +1,9 @@
-asgiref==3.3.1
+asgiref==3.3.4
 Django==3.1.7
-djangorestframework==3.12.2
+djangorestframework==3.12.4
 djangorestframework-jwt==1.11.0
-mysqlclient @ file:///C:/Users/chris/Downloads/mysqlclient-1.4.6-cp38-cp38-win32.whl
+mariadb==1.0.6
+mysqlclient==2.0.3
 PyJWT==1.7.1
 pytz==2021.1
 sqlparse==0.4.1
