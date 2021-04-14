@@ -1,5 +1,6 @@
 from .base import *
 
+from django.conf import settings
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -12,12 +13,12 @@ ALLOWED_HOSTS = []
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'user_auth_jwt',
-        'USER': 'chris',
-        'PASSWORD': 'givc980909',
-        'HOST': 'localhost',
-        'PORT': 3307,
+        'ENGINE': settings.ENGINE,
+        'NAME': settings.NAME_SCHEMA,
+        'USER': settings.USERNAME,
+        'PASSWORD': settings.PASSWORD,
+        'HOST': settings.HOST,
+        'PORT': settings.PORT,
     }
 }
 
