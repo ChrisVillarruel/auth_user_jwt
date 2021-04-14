@@ -125,3 +125,25 @@ STATIC_URL = '/static/'
 # el módulo de users. Este módulo está registrado arriba en una configuración
 # llamado `LOCAL_APPS`.
 AUTH_USER_MODEL = 'users.User'
+
+
+# Configuración de base de datos.
+# importamos el modulo de las credenciales de la db, si no existe 
+# el modulo cree uno nuevo con sus credenciales.
+
+# modulo local
+from . import database_info
+
+ENGINE = 'django.db.backends.mysql'
+NAME_SCHEMA = database_info.NAME_SCHEMA
+USERNAME = database_info.USERNAME
+PASSWORD = database_info.PASSWORD
+HOST = database_info.HOST
+PORT = database_info.PORT
+
+
+
+
+
+
+
